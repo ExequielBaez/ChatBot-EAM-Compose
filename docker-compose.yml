@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: eam-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: eam-chatbot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Oliver26
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./bd/postgres-data:/var/lib/postgresql/data
+    networks:
+      - eam-network
+
+  apijava:
+    build:
+      context: ./apijava
+      dockerfile: Dockerfile
+    container_name: eam-apijava
+    restart: always
+    ports:
+      - "9698:9698"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eam-chatbot
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Oliver26
+      SPRING_JPA_GENERATE_DDL: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    networks:
+      - eam-network
+
+  chatboteam:
+    build:
+      context: ./chatboteam
+      dockerfile: Dockerfile
+    container_name: eam-chatbot
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - apijava
+    networks:
+      - eam-network
+
+networks:
+  eam-network:
+    driver: bridge
