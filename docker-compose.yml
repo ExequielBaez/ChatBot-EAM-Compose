@@ -41,7 +41,7 @@ services:
     container_name: eam-chatbot
     restart: always
     ports:
-      - "3000:3000"
+      - "80:3000"
     depends_on:
       - apijava
     networks:
